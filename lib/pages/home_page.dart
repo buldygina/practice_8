@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:practice_3/components/item_note.dart';
-import 'package:practice_3/model/coffee.dart';
+import 'package:practice_4/components/item_note.dart';
+import 'package:practice_4/model/coffee.dart';
 
 final List<Coffee> coffee = [
   Coffee(

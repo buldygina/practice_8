@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:practice_3/model/coffee.dart';
-import 'package:practice_3/pages/catalog_page.dart';
+import 'package:practice_4/model/coffee.dart';
+import 'package:practice_4/pages/catalog_page.dart';
 
 class ItemNote extends StatelessWidget {
   const ItemNote(
