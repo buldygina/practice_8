@@ -40,7 +40,7 @@ class CatalogPage extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Цена: ${coffee.cost}',
+              'Цена: ${coffee.cost} рублей',
               style: TextStyle(
                 fontSize: 20.0,
                 fontWeight: FontWeight.w500,
