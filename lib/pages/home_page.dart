@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:practice_4/components/item_note.dart';
 import 'package:practice_4/model/coffee.dart';
+import 'package:practice_4/components/item_note.dart';
+
 
 final List<Coffee> coffee = [
   Coffee(
@@ -76,7 +78,10 @@ final List<Coffee> coffee = [
 ];
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final Function(Coffee) onFavouriteToggle;
+  final List<Coffee> favouriteCoffee;
+
+  const HomePage({super.key, required this.onFavouriteToggle, required this.favouriteCoffee});
 
   @override
   _HomePageState createState() => _HomePageState();
@@ -171,10 +176,19 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: ListView.builder(
+        child:
+        coffee.isNotEmpty
+        ?GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.7,
+            crossAxisSpacing: 8.0,
+            mainAxisSpacing: 8.0,
+          ),
           itemCount: coffee.length,
           itemBuilder: (BuildContext context, int index) {
             final Coffee coffeeItem = coffee[index];
+            final isFavourite = widget.favouriteCoffee.contains(coffeeItem);
             return Dismissible(
               key: Key(coffeeItem.id.toString()),
               onDismissed: (direction) {
@@ -188,10 +202,13 @@ class _HomePageState extends State<HomePage> {
               background: Container(color: Colors.red),
               child: ItemNote(
                 coffee: coffeeItem,
+                isFavourite: isFavourite,
+                  onFavouriteToggle: () => widget.onFavouriteToggle(coffeeItem)
               ),
             );
           },
-        ),
+        )
+          : const Center(child: Text('Нет доступных напитков')),
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16.0),

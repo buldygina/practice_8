@@ -3,10 +3,12 @@ import 'package:practice_4/model/coffee.dart';
 import 'package:practice_4/pages/catalog_page.dart';
 
 class ItemNote extends StatelessWidget {
-  const ItemNote(
-      {super.key, required this.coffee});
-
   final Coffee coffee;
+  final bool isFavourite;
+  final VoidCallback onFavouriteToggle;
+  const ItemNote(
+      {super.key, required this.coffee, required this.isFavourite, required this.onFavouriteToggle});
+
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class ItemNote extends StatelessWidget {
                 children: [
                   Text(
                     coffee.title,
-                    style: const TextStyle(fontSize: 60, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Serif" ),
+                    style: const TextStyle(fontSize: 27, color: Colors.white, fontWeight: FontWeight.bold, fontFamily: "Serif" ),
                   ),
                   OutlinedButton(
                     style: OutlinedButton.styleFrom(
@@ -52,13 +54,24 @@ class ItemNote extends StatelessWidget {
                             builder: (context) => CatalogPage(coffee: coffee,)),
                       );
                     },
-                    child: const Text('Описание напитка', style: TextStyle(fontSize: 20, color: Colors.white70),),
+                    child: const Text('Описание напитка', style: TextStyle(fontSize: 15, color: Colors.white70),),
                   ),
-                  const SizedBox(height: 50),
+                  const SizedBox(height: 30),
 
                 ],
               ),
             ),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: IconButton(
+                icon: Icon(
+                  isFavourite ? Icons.favorite : Icons.favorite_border,
+                  color: Colors.red,
+                ),
+                onPressed: onFavouriteToggle,
+              ),
+            )
           ]),
         ));
   }
