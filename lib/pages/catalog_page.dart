@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:practice_4/model/coffee.dart';
+import 'package:practice_5/model/coffee.dart';
 
 class CatalogPage extends StatelessWidget {
   const CatalogPage({super.key, required this.coffee});

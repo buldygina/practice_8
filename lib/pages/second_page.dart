@@ -1,22 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:practice_4/components/item_note.dart';
-import 'package:practice_4/model/coffee.dart';
+import 'package:practice_5/components/item_note.dart';
+import 'package:practice_5/model/coffee.dart';
 
 
 class SecondPage extends StatelessWidget {
   final List<Coffee> favouriteCoffee;
   final Function(Coffee) onFavouriteToggle;
+  final Function(Coffee) onAddToCart;
 
   const SecondPage(
       {super.key,
       required this.favouriteCoffee,
-      required this.onFavouriteToggle});
+      required this.onFavouriteToggle,
+      required this.onAddToCart});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Избранное'),
+        title: const Text('Избранное'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -36,6 +38,9 @@ class SecondPage extends StatelessWidget {
                     isFavourite: true,
                     onFavouriteToggle: () {
                       onFavouriteToggle(coffee);
+                    },
+                    onAddToCart:() {
+                      onAddToCart(coffee);
                     },
                   );
                 },

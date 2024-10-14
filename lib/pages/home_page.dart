@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:practice_4/components/item_note.dart';
-import 'package:practice_4/model/coffee.dart';
-import 'package:practice_4/components/item_note.dart';
+import 'package:practice_5/components/item_note.dart';
+import 'package:practice_5/model/coffee.dart';
+import 'package:practice_5/pages/basket_page.dart';
+import 'package:practice_5/model/cart_item.dart';
+
 
 
 final List<Coffee> coffee = [
@@ -88,6 +90,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<CartItem> cart = [];
+
+  void addToCart(Coffee coffee) {
+    setState(() {
+      final cartItemIndex = cart.indexWhere((item) => item.coffee.id == coffee.id);
+
+      if (cartItemIndex != -1) {
+        cart[cartItemIndex].quantity++;
+      } else {
+        cart.add(CartItem(coffee: coffee, quantity: 1));
+      }
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${coffee.title} добавлен в корзину'),)
+    );
+  }
   Future<void> _addNewNoteDialog(BuildContext context) async {
     String title = '';
     String description = '';
@@ -173,6 +191,44 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Кофе'),
+        actions: [
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => BasketPage(cart: cart)),
+                  );
+                },
+              ),
+              if (cart.isNotEmpty)
+                Positioned(
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.all(2),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '${cart.fold<int>(0, (previousValue, item) => previousValue + item.quantity)}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -189,21 +245,43 @@ class _HomePageState extends State<HomePage> {
           itemBuilder: (BuildContext context, int index) {
             final Coffee coffeeItem = coffee[index];
             final isFavourite = widget.favouriteCoffee.contains(coffeeItem);
+            final DismissDirection dismissDirection =
+            index % 2 == 0 ? DismissDirection.endToStart : DismissDirection.startToEnd;
             return Dismissible(
               key: Key(coffeeItem.id.toString()),
+              direction: dismissDirection,
               onDismissed: (direction) {
-                setState(() {
-                  coffee.removeAt(index);
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('${coffeeItem.title} был удален')),
-                );
               },
-              background: Container(color: Colors.red),
+              background: Container(
+                color: Colors.red,
+                alignment: Alignment.centerRight,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                        size: 40,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          coffee.removeAt(index);
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('${coffeeItem.title} был удален')),
+                        );
+                      },
+                    ),
+                    const SizedBox(width: 20),
+                  ],
+                ),
+              ),
               child: ItemNote(
                 coffee: coffeeItem,
                 isFavourite: isFavourite,
-                  onFavouriteToggle: () => widget.onFavouriteToggle(coffeeItem)
+                  onFavouriteToggle: () => widget.onFavouriteToggle(coffeeItem),
+                onAddToCart: () => addToCart(coffeeItem),
               ),
             );
           },
@@ -213,16 +291,10 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SizedBox(
-          width: 80.0,
-          height: 80.0,
           child: FloatingActionButton(
             onPressed: () {
               _addNewNoteDialog(context);
             },
-            backgroundColor: Colors.white.withOpacity(0.8),
-            foregroundColor: Colors.white,
-            splashColor: Colors.white60,
-            elevation: 10.0,
             child: const Icon(
               Icons.add,
               size: 40.0,

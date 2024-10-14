@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:practice_4/model/coffee.dart';
-import 'package:practice_4/pages/home_page.dart';
-import 'package:practice_4/pages/second_page.dart';
-import 'package:practice_4/pages/third_page.dart';
+import 'package:practice_5/model/coffee.dart';
+import 'package:practice_5/pages/home_page.dart';
+import 'package:practice_5/pages/second_page.dart';
+import 'package:practice_5/pages/third_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,7 +43,9 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     });
   }
-
+void _addToCart(Coffee coffee) {
+    print('Добавлено в корзину: ${coffee.title}');
+}
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -60,6 +62,7 @@ class _MyHomePageState extends State<MyHomePage> {
       SecondPage(
         favouriteCoffee: _favouriteCoffee,
         onFavouriteToggle: _toggleFavourite,
+        onAddToCart: _addToCart,
       ),
       const ThirdPage(),
     ];
@@ -78,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Профиль',
-          ),
+          )
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 187, 164, 132),
