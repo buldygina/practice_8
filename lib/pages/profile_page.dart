@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:practice_5/pages/edit_phone.dart';
-import 'package:practice_5/pages/edit_name.dart';
-import 'package:practice_5/pages/edit_image.dart';
-import 'package:practice_5/pages/edit_email.dart';
-import 'package:practice_5/widgets/dispaly_image_widget.dart';
+import 'package:practice_6/pages/edit_phone.dart';
+import 'package:practice_6/pages/edit_name.dart';
+import 'package:practice_6/pages/edit_image.dart';
+import 'package:practice_6/pages/edit_email.dart';
+import 'package:practice_6/widgets/dispaly_image_widget.dart';
 import '../user/user_data.dart';
 
 // This class handles the Page to display the user's info on the "Edit Profile" Screen

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:practice_5/model/cart_item.dart';
+import 'package:practice_6/model/cart_item.dart';
 
 class BasketPage extends StatefulWidget {
   final List<CartItem> cart;
@@ -33,6 +33,36 @@ class _BasketPageState extends State<BasketPage> {
     });
   }
 
+  void removeItem(int index) {
+    setState(() {
+      widget.cart.removeAt(index); // Удаление элемента из корзины
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Товар удален из корзины')),
+    );
+  }
+
+  Future<bool?> showDeleteConfirmationDialog(BuildContext context) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Удалить товар?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text("Отмена"),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text("Удалить"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final totalPrice = calculateTotalPrice();
@@ -48,23 +78,48 @@ class _BasketPageState extends State<BasketPage> {
               itemCount: widget.cart.length,
               itemBuilder: (context, index) {
                 final cartItem = widget.cart[index];
-                return ListTile(
-                  leading: Image.network(cartItem.coffee.imageUrl, width: 90, height: 120, fit: BoxFit.cover),
-                  title: Text(cartItem.coffee.title),
-                  subtitle: Text('${cartItem.quantity} x ${cartItem.coffee.cost} руб.'),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: () => decreaseQuantity(index),
-                      ),
-                      Text(cartItem.quantity.toString()),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: () => increaseQuantity(index),
-                      ),
-                    ],
+
+                return Dismissible(
+                  key: Key(cartItem.coffee.id.toString()),
+                  direction: DismissDirection.endToStart, // Свайп только влево
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: const Icon(Icons.delete, color: Colors.white, size: 30),
+                  ),
+                  confirmDismiss: (direction) async {
+                    // Открыть диалог для подтверждения удаления
+                    final confirm = await showDeleteConfirmationDialog(context);
+                    if (confirm == true) {
+                      removeItem(index); // Удалить товар
+                      return true;
+                    }
+                    return false;
+                  },
+                  child: ListTile(
+                    leading: Image.network(
+                      cartItem.coffee.imageUrl,
+                      width: 90,
+                      height: 120,
+                      fit: BoxFit.cover,
+                    ),
+                    title: Text(cartItem.coffee.title),
+                    subtitle: Text('${cartItem.quantity} x ${cartItem.coffee.cost} руб.'),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: () => decreaseQuantity(index),
+                        ),
+                        Text(cartItem.quantity.toString()),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () => increaseQuantity(index),
+                        ),
+                      ],
+                    ),
                   ),
                 );
               },
@@ -75,7 +130,7 @@ class _BasketPageState extends State<BasketPage> {
             child: ElevatedButton(
               onPressed: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Покупка успешно совершена!'))
+                  const SnackBar(content: Text('Покупка успешно совершена!')),
                 );
               },
               style: ElevatedButton.styleFrom(
