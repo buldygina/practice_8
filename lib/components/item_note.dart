@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:practice_6/model/coffee.dart';
-import 'package:practice_6/pages/catalog_page.dart';
+import 'package:practice_8/model/coffee.dart';
+import 'package:practice_8/pages/catalog_page.dart';
 
 class ItemNote extends StatelessWidget {
   final Coffee coffee;

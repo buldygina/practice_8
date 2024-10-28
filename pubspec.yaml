@@ -1,4 +1,4 @@
-name: practice_6
+name: practice_8
 description: "A new Flutter project."
 publish_to: 'none'
 
@@ -16,6 +16,7 @@ dependencies:
   shared_preferences: ^2.0.0
   path_provider: ^2.0.0
   image_picker: ^0.8.4+4
+  dio: ^5.7.0
 
 dev_dependencies:
   flutter_test:
