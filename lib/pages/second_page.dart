@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:practice_8/components/item_note.dart';
 import 'package:practice_8/model/coffee.dart';
+import 'package:practice_8/pages/catalog_page.dart';
 
 
 class SecondPage extends StatelessWidget {
   final List<Coffee> favouriteCoffee;
   final Function(Coffee) onFavouriteToggle;
   final Function(Coffee) onAddToCart;
+  final Function(Coffee) onTap;
+  final Function(Coffee) onEdit;
 
   const SecondPage(
       {super.key,
       required this.favouriteCoffee,
       required this.onFavouriteToggle,
-      required this.onAddToCart});
+      required this.onAddToCart,
+      required this.onEdit,
+      required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +46,17 @@ class SecondPage extends StatelessWidget {
                     },
                     onAddToCart:() {
                       onAddToCart(coffee);
+                    },
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CatalogPage(coffee: coffee),
+                        )
+                      );
+                    },
+                    onEdit: (){
+                      onEdit(coffee);
                     },
                   );
                 },

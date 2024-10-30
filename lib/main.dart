@@ -36,16 +36,26 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _toggleFavourite(Coffee coffee) {
     setState(() {
-      if (_favouriteCoffee.contains(coffee)){
+      if (_favouriteCoffee.contains(coffee)) {
         _favouriteCoffee.remove(coffee);
       } else {
         _favouriteCoffee.add(coffee);
       }
     });
   }
-void _addToCart(Coffee coffee) {
+
+  void _addToCart(Coffee coffee) {
     print('Добавлено в корзину: ${coffee.title}');
-}
+  }
+  void _onTap(Coffee coffee) {
+    print('Показать детали для: ${coffee.title}');
+  }
+
+
+  void _onEdit(Coffee coffee) {
+    print('Редактирование напитка: ${coffee.title}');
+  }
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -63,9 +73,12 @@ void _addToCart(Coffee coffee) {
         favouriteCoffee: _favouriteCoffee,
         onFavouriteToggle: _toggleFavourite,
         onAddToCart: _addToCart,
+        onTap: _onTap,
+        onEdit: _onEdit,
       ),
       const ThirdPage(),
     ];
+
     return Scaffold(
       body: _widgetOptions.elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
@@ -81,7 +94,7 @@ void _addToCart(Coffee coffee) {
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
             label: 'Профиль',
-          )
+          ),
         ],
         currentIndex: _selectedIndex,
         selectedItemColor: const Color.fromARGB(255, 187, 164, 132),

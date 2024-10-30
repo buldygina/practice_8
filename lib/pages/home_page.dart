@@ -4,9 +4,6 @@ import 'package:practice_8/components/item_note.dart';
 import 'package:practice_8/model/coffee.dart';
 import 'package:practice_8/pages/basket_page.dart';
 import 'package:practice_8/model/cart_item.dart';
-import 'package:practice_8/api_service.dart';
-
-
 class HomePage extends StatefulWidget {
   final Function(Coffee) onFavouriteToggle;
   final List<Coffee> favouriteCoffee;
@@ -25,17 +22,18 @@ class _HomePageState extends State<HomePage> {
   void addToCart(Coffee coffee) {
     setState(() {
       final cartItemIndex = cart.indexWhere((item) => item.coffee.id == coffee.id);
-
       if (cartItemIndex != -1) {
         cart[cartItemIndex].quantity++;
       } else {
         cart.add(CartItem(coffee: coffee, quantity: 1));
       }
     });
+
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('${coffee.title} добавлен в корзину'),)
     );
   }
+
   Future<void> _addNewNoteDialog(BuildContext context) async {
     String title = '';
     String description = '';
@@ -64,10 +62,10 @@ class _HomePageState extends State<HomePage> {
                 },
               ),
               TextField(
-                decoration: const InputDecoration(labelText: 'Картинка'),
-                onChanged: (value){
-                  imageUrl = value;
-                }
+                  decoration: const InputDecoration(labelText: 'Картинка'),
+                  onChanged: (value){
+                    imageUrl = value;
+                  }
               ),
               TextField(
                 decoration: const InputDecoration(labelText: 'Цена'),
@@ -104,12 +102,12 @@ class _HomePageState extends State<HomePage> {
                   );
                   try{
                     Coffee createdCoffee = await apiService.createCoffee(newCoffee);
-                  setState(() {
-                    coffee.add(createdCoffee);
-                  });
-                  Navigator.of(context).pop();
-                } catch(error){
-                 print('Ошибка при добавлении кофе: $error');
+                    setState(() {
+                      coffee.add(createdCoffee);
+                    });
+                    Navigator.of(context).pop();
+                  } catch(error){
+                    print('Ошибка при добавлении кофе: $error');
                   }
                 } else{
                   print('Пожалуйста, заполните все поля.');
@@ -124,14 +122,73 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchCoffees() async {
     final response = await apiService.getCoffees();
-    if (response.isNotEmpty) coffee = response;
+    if (response.isNotEmpty) {
+      setState(() {
+      coffee = response;
+    });
+    }
   }
 
   @override
   void initState() {
     super.initState();
     fetchCoffees();
+  }
 
+  Future<void> fetchCoffeeById(int id) async {
+    try {
+      Coffee coffeeItem = await apiService.getCoffeeById(id);
+      _showCoffeeDetailsDialog(coffeeItem);
+    } catch (e) {
+      print('Ошибка получения кофе: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка получения кофе: $e')),
+      );
+    }
+  }
+  Future<void> deleteCoffee(int coffeeId, int index) async{
+    try{
+      await apiService.deleteCoffee(coffeeId);
+      setState(() {
+        coffee.removeAt(index);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Кофе с ID $coffeeId был удален')),
+      );
+    } catch (error){
+      print('Ошибка при удалении кофе: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Ошибка при удалении кофе: $error')),
+      );
+    }
+  }
+
+  void _showCoffeeDetailsDialog(Coffee coffeeItem) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(coffeeItem.title),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Image.network(coffeeItem.imageUrl),
+              Text('Описание: ${coffeeItem.description}'),
+              Text('Цена: ${coffeeItem.cost}'),
+              Text('Артикул: ${coffeeItem.article}'),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Закрыть'),
+              onPressed: (){
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -180,9 +237,8 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
-        child:
-        coffee.isNotEmpty
-        ?GridView.builder(
+        child: coffee.isNotEmpty
+            ? GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
             childAspectRatio: 0.7,
@@ -195,10 +251,17 @@ class _HomePageState extends State<HomePage> {
             final isFavourite = widget.favouriteCoffee.contains(coffeeItem);
             final DismissDirection dismissDirection =
             index % 2 == 0 ? DismissDirection.endToStart : DismissDirection.startToEnd;
+
             return Dismissible(
               key: Key(coffeeItem.id.toString()),
               direction: dismissDirection,
               onDismissed: (direction) {
+                setState(() {
+                  coffee.removeAt(index);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('${coffeeItem.title} был удален')),
+                );
               },
               background: Container(
                 color: Colors.red,
@@ -212,13 +275,8 @@ class _HomePageState extends State<HomePage> {
                         color: Colors.white,
                         size: 40,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          coffee.removeAt(index);
-                        });
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('${coffeeItem.title} был удален')),
-                        );
+                      onPressed: () async{
+                        await deleteCoffee(coffeeItem.id, index);
                       },
                     ),
                     const SizedBox(width: 20),
@@ -228,29 +286,117 @@ class _HomePageState extends State<HomePage> {
               child: ItemNote(
                 coffee: coffeeItem,
                 isFavourite: isFavourite,
-                  onFavouriteToggle: () => widget.onFavouriteToggle(coffeeItem),
+                onFavouriteToggle: () => widget.onFavouriteToggle(coffeeItem),
                 onAddToCart: () => addToCart(coffeeItem),
+                onTap: () => fetchCoffeeById(coffeeItem.id),
+                onEdit: () => _editNoteDialog(context, coffeeItem),
               ),
             );
           },
         )
-          : const Center(child: Text('Нет доступных напитков')),
+            : const Center(child: CircularProgressIndicator()),
       ),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SizedBox(
-          child: FloatingActionButton(
-            onPressed: () {
-              _addNewNoteDialog(context);
-            },
-            child: const Icon(
-              Icons.add,
-              size: 40.0,
-              color: Colors.grey,
-            ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _addNewNoteDialog(context),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Future<void> _editNoteDialog(BuildContext context, Coffee coffeeItem) async {
+    String title = coffeeItem.title;
+    String description = coffeeItem.description;
+    String imageUrl = coffeeItem.imageUrl;
+    String cost = coffeeItem.cost;
+    String article = coffeeItem.article;
+
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Редактировать напиток'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                decoration: const InputDecoration(labelText: 'Название'),
+                controller: TextEditingController(text: title),
+                onChanged: (value) {
+                  title = value;
+                },
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Описание'),
+                controller: TextEditingController(text: description),
+                onChanged: (value) {
+                  description = value;
+                },
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Картинка'),
+                controller: TextEditingController(text: imageUrl),
+                onChanged: (value) {
+                  imageUrl = value;
+                },
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Цена'),
+                controller: TextEditingController(text: cost),
+                onChanged: (value) {
+                  cost = value;
+                },
+              ),
+              TextField(
+                decoration: const InputDecoration(labelText: 'Артикул'),
+                controller: TextEditingController(text: article),
+                onChanged: (value) {
+                  article = value;
+                },
+              ),
+            ],
           ),
-        ),
-      ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Отмена'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Сохранить'),
+              onPressed: () async {
+                if (title.isNotEmpty && description.isNotEmpty && cost.isNotEmpty && article.isNotEmpty) {
+                  Coffee updatedCoffee = Coffee(
+                    coffeeItem.id,
+                    title,
+                    description,
+                    imageUrl,
+                    cost,
+                    article,
+                  );
+                  try {
+                    Coffee result = await apiService.updateCoffee(coffeeItem.id, updatedCoffee);
+                    setState(() {
+                      int index = coffee.indexWhere((c) => c.id == coffeeItem.id);
+                      if (index != -1) {
+                        coffee[index] = result;
+                      }
+                    });
+                    Navigator.of(context).pop();
+                  } catch (error) {
+                    print('Ошибка при обновлении кофе: $error');
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Ошибка при обновлении кофе: $error')),
+                    );
+                  }
+                } else {
+                  print('Пожалуйста, заполните все поля.');
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

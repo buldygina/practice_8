@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:practice_8/model/coffee.dart';
-import 'package:practice_8/pages/catalog_page.dart';
 
 class ItemNote extends StatelessWidget {
   final Coffee coffee;
   final bool isFavourite;
   final VoidCallback onFavouriteToggle;
   final VoidCallback onAddToCart;
-  const ItemNote(
-      {super.key, required this.coffee, required this.isFavourite, required this.onFavouriteToggle, required this.onAddToCart});
+  final VoidCallback onTap;
+  final VoidCallback onEdit;
 
+  const ItemNote({
+    super.key,
+    required this.coffee,
+    required this.isFavourite,
+    required this.onFavouriteToggle,
+    required this.onAddToCart,
+    required this.onTap,
+    required this.onEdit,
+  });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => CatalogPage(coffee: coffee),
-        ),
-      ),
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
@@ -64,19 +67,13 @@ class ItemNote extends StatelessWidget {
                               width: 3,
                             ),
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    CatalogPage(coffee: coffee),
-                              ),
-                            );
-                          },
+                          onPressed: onTap,
                           child: const Text(
                             'Описание напитка',
                             style: TextStyle(
-                                fontSize: 15, color: Colors.white70),
+                              fontSize: 15,
+                              color: Colors.white70,
+                            ),
                           ),
                         ),
                         Text(
@@ -96,12 +93,21 @@ class ItemNote extends StatelessWidget {
                     right: 4,
                     child: IconButton(
                       icon: Icon(
-                        isFavourite
-                            ? Icons.favorite
-                            : Icons.favorite_border,
+                        isFavourite ? Icons.favorite : Icons.favorite_border,
                         color: Colors.red,
                       ),
                       onPressed: onFavouriteToggle,
+                    ),
+                  ),
+                  Positioned(
+                    top: 0.5,
+                    left: 4,
+                    child: IconButton(
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.white,
+                      ),
+                      onPressed: onEdit,
                     ),
                   ),
                 ],
