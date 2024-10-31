@@ -2,7 +2,13 @@ import 'package:dio/dio.dart';
 import 'package:practice_8/model/coffee.dart';
 
 class ApiService {
-  final Dio _dio = Dio();
+  final Dio _dio = Dio(
+    BaseOptions(
+      baseUrl: 'http://192.168.1.11:8080',
+      connectTimeout: Duration(seconds: 50),
+      receiveTimeout: Duration(seconds: 50),
+    ),
+  );
 
   Future<List<Coffee>> getCoffees() async {
     try {
@@ -22,7 +28,7 @@ class ApiService {
   Future<Coffee> createCoffee(Coffee coffee) async {
     try {
       final response = await _dio.post(
-        'http://10.192.222.15:8080/coffee/create',
+        'http://192.168.1.11:8080/coffee/create',
         data: coffee.toJson(),
       );
       if (response.statusCode == 200) {
